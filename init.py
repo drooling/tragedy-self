@@ -2,6 +2,7 @@ import asyncio
 import contextlib
 import itertools
 import json
+import os
 import sqlite3
 from typing import Any, Optional, Set, Union
 
@@ -33,6 +34,9 @@ class Tragedy(commands.Bot):
 			self_bot=True
 		)
 
+		exists = os.path.isdir(os.path.join(os.getcwd(), "ignore"))
+		if not exists:
+			os.mkdir(os.path.join(os.getcwd(), "ignore"))
 		self.db = sqlite3.connect("ignore\\environment.db")
 		with contextlib.suppress(sqlite3.OperationalError):
 			self.db.cursor().execute("CREATE TABLE IF NOT EXISTS prefixes (prefix TEXT NOT NULL UNIQUE)")
