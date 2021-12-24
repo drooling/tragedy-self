@@ -19,25 +19,25 @@ class Fun(commands.Cog):
 	async def shiba(self, ctx: commands.Context):
 		async with self.session.get("https://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true") as response:
 			jobj = json.loads(await response.text())
-		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), title="Shiba").set_image(url=jobj[0]), delete_after=self.bot.delete_delay)
+		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), title="Random Shiba").set_image(url=jobj[0]), delete_after=self.bot.delete_delay)
 
 	@commands.command(description="Get picture of random fox.")
 	async def fox(self, ctx: commands.Context):
 		async with self.session.get("https://randomfox.ca/floof/") as response:
 			jobj = json.loads(await response.text())
-		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), title="Fox").set_image(url=jobj.get("image")), delete_after=self.bot.delete_delay)
+		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), title="Random Fox").set_image(url=jobj.get("image")), delete_after=self.bot.delete_delay)
 
 	@commands.command(description="Get picture of random dog.")
 	async def dog(self, ctx: commands.Context):
 		async with self.session.get("https://dog.ceo/api/breeds/image/random") as response:
 			jobj = json.loads(await response.text())
-		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), title="Dog").set_image(url=jobj.get("message")), delete_after=self.bot.delete_delay)
+		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), title="Random Dog").set_image(url=jobj.get("message")), delete_after=self.bot.delete_delay)
 
 	@commands.command(description="Get picture of random cat.")
 	async def cat(self, ctx: commands.Context):
 		async with self.session.get("https://aws.random.cat/meow") as response:
 			jobj = json.loads(await response.text())
-		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), title="Cat").set_image(url=jobj.get("file")), delete_after=self.bot.delete_delay)
+		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), title="Random Cat").set_image(url=jobj.get("file")), delete_after=self.bot.delete_delay)
 
 	@commands.command(description="Get a random insult.")
 	async def insult(self, ctx: commands.Context):
