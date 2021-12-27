@@ -28,7 +28,7 @@ class Events(commands.Cog):
 
 	@commands.Cog.listener("on_message_delete")
 	async def message_logger__callback(self, message: discord.Message):
-		if self.bot.message_logging and message.author != self.bot.user and not message.author.bot:
+		if self.bot.message_logging and message.author != self.bot.user and not message.author.bot and len(message.clean_content) <= 1024:
 			_ = aiohttp.ClientSession(loop=self.bot.loop)
 			try:
 				logger = discord.Webhook.from_url(self.bot.message_logging_webhook, adapter=discord.AsyncWebhookAdapter(session=_))
