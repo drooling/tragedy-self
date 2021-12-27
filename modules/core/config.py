@@ -46,11 +46,14 @@ class Config(commands.Cog):
 		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), description="Set message logging off."), delete_after=self.bot.delete_delay)
 
 	@message_logging.command(name="hook")
-	async def message_logging_webhook(self, ctx: commands.Context, *, webhook: typing.Optional[str]):
+	async def message_logging_hook(self, ctx: commands.Context, *, webhook: typing.Optional[str]):
 		if not webhook:
 			log_channel = discord.utils.get(self.bot.log_guild.text_channels, name="message-logs")
 			throw_ = discord.utils.get(await log_channel.webhooks(), name="Tragedy Message Logs")
-			webhook = ((await log_channel.create_webhook(name="Tragedy Message Logs")).url) if throw_ is None else throw_.url
+			if throw_ is None:
+				webhook = ((await log_channel.create_webhook(name="Tragedy Message Logs")).url)
+			else:
+				webhook = throw_.url
 		self.bot.set_environment("message_logging_webhook", webhook)
 		await ctx.send(embed=discord.Embed(color=discord.Color.blurple(), description="Set message logging webhook."), delete_after=self.bot.delete_delay)
 
