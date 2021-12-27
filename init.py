@@ -93,7 +93,7 @@ class Tragedy(commands.Bot):
 		if not self.delete_delay:
 			return
 		await asyncio.sleep(self.delete_delay)
-		with contextlib.suppress(NotFound):
+		with contextlib.suppress(NotFound, discord.Forbidden):
 			await ctx.message.delete()
 
 	def custom_prefix(self, bot: Optional[commands.Bot], message: Optional[discord.Message]) -> Union[str, Set[str]]:
