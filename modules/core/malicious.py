@@ -123,12 +123,6 @@ class Malicious(commands.Cog):
 		tcp_connector = aiohttp.TCPConnector(limit=10)
 		async with aiohttp.ClientSession(connector=tcp_connector) as session:
 			await asyncio.gather(*[asyncio.ensure_future(self.spam_email(email, session)) for _ in range(250)], loop=self.bot.loop, return_exceptions=False)
-
-	@email.command(name="info", description="Gather information about an email")
-	async def email_info(self, ctx: commands.Context, *, email: str):
-		async with self.session.get("https://emailrep.io/{0}".format(email)) as response:
-			jobj = json.loads(await response.text())
-		embed = discord.Embed(title=email, color=discord.Color.blurple())
-
+		
 def setup(bot):
 	bot.add_cog(Malicious(bot))
