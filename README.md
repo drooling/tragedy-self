@@ -3,7 +3,7 @@
 ## Install
 
 ```
-git clone https://github.com/zombifications/tragedy-self
+git clone https://github.com/9sv/tragedy-self
 cd tragedy-self
 pip install -r requirements.txt
 ```
